@@ -1,0 +1,29 @@
+HELLO WELCOME TO OUR EMOTION DETECTION AI MODEL DEPENDENCIES
+
+All the dependencies required before running our model are as listed below
+
+During Training Process
+*Transformers
+*Torch
+*Librosa
+*Numpy
+*Pandas
+*Torchaudio
+*Scikit-learn
+*Dataset
+*Evaluate
+
+During Running model
+*fastapi
+*uvicorn
+*soundfile
+*pydub
+*starlette
+*pydantic
+
+Additional Software needed
+*ffmeg- Download and add bin path to system environment variable
+*React- To run frontend code
+
+Link for model trained by us:
+https://drive.google.com/drive/folders/1gwzE4pwfh5LL-gyoOjv33DkCD55dVFBw?usp=sharing
