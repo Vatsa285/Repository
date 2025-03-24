@@ -13,24 +13,24 @@ from sklearn.utils.class_weight import compute_class_weight
 import torch.nn as nn
 import torch.nn.functional as F
 
-# 🚀 Load Pretrained Feature Extractor & Model
+#  Load Pretrained Feature Extractor & Model
 model_path = "./emotion_model_finetuned_v3"
 feature_extractor = AutoFeatureExtractor.from_pretrained(model_path)
 model = Wav2Vec2ForSequenceClassification.from_pretrained(model_path)
 
-# 🎭 Correct RAVDESS Emotion Labels Mapping
+#  Correct RAVDESS Emotion Labels Mapping
 ravdess_emotion_mapping = {
     "01": "neutral", "02": "calm", "03": "happy", "04": "sad",
     "05": "angry", "06": "fearful", "07": "disgust", "08": "surprised"
 }
 
-# 🏷️ Correct Label to Index Mapping (Matches Model)
+#  Correct Label to Index Mapping (Matches Model)
 label_mapping = {
     "neutral": 0, "calm": 1, "happy": 2, "sad": 3,
     "angry": 4, "fearful": 5, "disgust": 6, "surprised": 7
 }
 
-# 🎵 Load Audio Dataset
+#  Load Audio Dataset
 data_path = "C:\\Users\\raksh\\Desktop\\voice_detection\\dataset\\Audio_Speech_Actors_01-24"
 
 data = []
@@ -46,7 +46,7 @@ for root, _, files in os.walk(data_path):
 df = pd.DataFrame(data)
 ravdess_dataset = Dataset.from_pandas(df)
 
-# 🎼 Audio Preprocessing
+# Audio Preprocessing
 def preprocess_audio(example):
     waveform, sample_rate = torchaudio.load(example["path"])
 
@@ -71,23 +71,23 @@ def preprocess_audio(example):
 
 ravdess_dataset = ravdess_dataset.map(preprocess_audio, remove_columns=["path"])
 
-# 🔢 Map Labels to Integers (Ensuring Correct Encoding)
+# Map Labels to Integers (Ensuring Correct Encoding)
 def map_labels(example):
     example["label"] = label_mapping[example["label"]]
     return example
 
 ravdess_dataset = ravdess_dataset.map(map_labels)
 
-# 🧪 Train-Test Split
+# Train-Test Split
 ravdess_dataset = ravdess_dataset.train_test_split(test_size=0.2)
 train_dataset, val_dataset = ravdess_dataset["train"], ravdess_dataset["test"]
 
-# 🏋️ Compute Class Weights (Fix Dataset Imbalance)
+# Compute Class Weights (Fix Dataset Imbalance)
 labels = [ex["label"] for ex in train_dataset]
 class_weights = compute_class_weight("balanced", classes=np.unique(labels), y=labels)
 class_weights = torch.tensor(class_weights, dtype=torch.float).to("cuda")
 
-# 🎯 Weighted Focal Loss (Fix Overfitting & Class Imbalance)
+# Weighted Focal Loss (Fix Overfitting & Class Imbalance)
 class WeightedFocalLoss(nn.Module):
     def __init__(self, weights, gamma=2):
         super(WeightedFocalLoss, self).__init__()
@@ -102,24 +102,24 @@ class WeightedFocalLoss(nn.Module):
 
 weighted_focal_loss = WeightedFocalLoss(class_weights)
 
-# 🏆 Define Loss Function for Trainer
+# Define Loss Function for Trainer
 def compute_loss(model, inputs, return_outputs=False):
     labels = inputs.pop("labels")
     outputs = model(**inputs)
     loss = weighted_focal_loss(outputs.logits, labels)
     return (loss, outputs) if return_outputs else loss
 
-# 📊 Evaluation Metrics
+# Evaluation Metrics
 accuracy_metric = evaluate.load("accuracy")
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     predictions = torch.argmax(torch.tensor(logits), dim=-1)
     return accuracy_metric.compute(predictions=predictions, references=labels)
 
-# 📌 Data Collator
+# Data Collator
 data_collator = DataCollatorWithPadding(feature_extractor, return_tensors="pt")
 
-# 🚀 Optimized Training Arguments
+# Optimized Training Arguments
 training_args = TrainingArguments(
     output_dir="./emotion_model_finetuned_v4",
     evaluation_strategy="epoch",
@@ -137,7 +137,7 @@ training_args = TrainingArguments(
     fp16=True
 )
 
-# 🔥 Trainer with Improved Settings
+# Trainer with Improved Settings
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -147,21 +147,21 @@ trainer = Trainer(
     compute_metrics=compute_metrics,
 )
 
-# 🎯 Train Model
+# Train Model
 trainer.train()
 
-# 💾 Save Fine-Tuned Model
+# Save Fine-Tuned Model
 model.config.id2label = {v: k for k, v in label_mapping.items()}
 model.config.label2id = label_mapping
 model.save_pretrained("./emotion_model_finetuned_v4")
 feature_extractor.save_pretrained("./emotion_model_finetuned_v4")
-print("✅ Fine-tuning completed and model saved!")
+print("Fine-tuning completed and model saved!")
 
-# 🛠 Evaluate Final Model
+# Evaluate Final Model
 results = trainer.evaluate()
 print(results)
 
-# ✅ Verify Model Label Mapping
+# Verify Model Label Mapping
 print("Model id2label:", model.config.id2label)
 print("Model label2id:", model.config.label2id)
  
