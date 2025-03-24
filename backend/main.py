@@ -60,10 +60,10 @@ async def predict_emotion(file: UploadFile = File(...)):
         predicted_emotion = emotion_labels[predicted_label]
         emotion_probabilities = {emotion_labels[i]: float(probabilities[0][i]) for i in range(len(emotion_labels))}
 
-        print(f"✅ API Response: {predicted_emotion}, Probabilities: {emotion_probabilities}")
+        print(f"API Response: {predicted_emotion}, Probabilities: {emotion_probabilities}")
 
         return {"emotion": predicted_emotion, "probabilities": emotion_probabilities, "status": "success"}
 
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
+        print(f"Error: {str(e)}")
         return {"error": str(e), "status": "failure"}
