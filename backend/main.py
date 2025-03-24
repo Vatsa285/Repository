@@ -9,7 +9,7 @@ from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtra
 
 app = FastAPI()
 
-# ✅ Enable CORS
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,7 +32,7 @@ async def predict_emotion(file: UploadFile = File(...)):
         contents = await file.read()
         audio_buffer = io.BytesIO(contents)
 
-        # ✅ Convert to WAV if necessary
+        # Convert to WAV if necessary
         try:
             audio_segment = AudioSegment.from_file(audio_buffer)
             audio_buffer = io.BytesIO()
@@ -41,7 +41,7 @@ async def predict_emotion(file: UploadFile = File(...)):
         except Exception as e:
             return {"status": "error", "message": f"Audio conversion failed: {str(e)}"}
 
-        # ✅ Reload the audio buffer for librosa
+        # Reload the audio buffer for librosa
         audio_buffer.seek(0)
         try:
             y, sr = librosa.load(audio_buffer, sr=16000)
