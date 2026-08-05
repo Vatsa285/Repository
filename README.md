@@ -153,12 +153,3 @@ Utilities:
 - Fork the repo, make changes, and open a PR.
 - When changing model directory names or training outputs, update backend/main.py and README accordingly.
 
-## License
-No license file detected in the repository. If you want permissive reuse, add a LICENSE file (e.g., MIT) to the repo.
-
----
-
-If you want, I can:
-- Create a ready-to-commit README.md in this repository with this content.
-- Add a requirements.txt generated from the `Dependencies` file.
-- Make backend.model_path configurable via environment variables and open a PR with that change.
